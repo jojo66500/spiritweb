@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpiritWeb – Outil Spirite Personnel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <h1 class="logo">SpiritWeb</h1>
+      <p class="tagline">Outil spirite personnel</p>
+
+      <nav class="nav">
+        <button class="nav-btn active" data-section="pve">PVE</button>
+        <button class="nav-btn" data-section="spirit-box">Spirit Box</button>
+        <button class="nav-btn" data-section="ouija">Planche Oui-Ja</button>
+        <button class="nav-btn" data-section="sensors">Capteurs & Ambiance</button>
+        <button class="nav-btn" data-section="journal">Journal des séances</button>
+      </nav>
+
+      <footer class="sidebar-footer">
+        <small>Créé pour Joffrey • v0.5</small>
+      </footer>
+    </aside>
+
+    <main class="main">
+      <!-- SECTION PVE -->
+      <section id="pve" class="section active">
+        <h2>PVE – Phénomènes Vocaux Électroniques</h2>
+        <p class="section-description">
+          Enregistrez l'ambiance sonore, marquez les moments importants et réécoutez vos PVE.
+        </p>
+
+        <div class="card">
+          <div class="controls-row">
+            <button id="start-record" class="primary-btn">🎙️ Démarrer l’enregistrement</button>
+            <button id="stop-record" class="secondary-btn" disabled>■ Arrêter</button>
+            <span id="record-timer" class="timer">00:00</span>
+          </div>
+          <p id="record-status" class="status-text">
+            Prêt à enregistrer. Assurez-vous d’être dans le calme.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Enregistrements PVE</h3>
+          <ul id="recordings-list" class="recordings-list">
+            <li class="empty-state">Aucun enregistrement pour l’instant.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- SECTION SPIRIT BOX -->
+      <section id="spirit-box" class="section">
+        <h2>Spirit Box numérique</h2>
+        <p class="section-description">
+          Générateur de « balayage » sonore symbolique : bruit blanc saccadé + fragments textuels aléatoires.
+          Cet outil est immersif, mais ne constitue pas une preuve scientifique de phénomènes paranormaux.
+        </p>
+
+        <div class="card">
+          <div class="controls-row">
+            <button id="spirit-start" class="primary-btn">▶️ Lancer la Spirit Box</button>
+            <button id="spirit-stop" class="secondary-btn" disabled>■ Stop</button>
+          </div>
+
+          <div class="slider-group">
+            <label for="spirit-volume">
+              Intensité du bruit : <span id="spirit-volume-value">70</span> %
+            </label>
+            <input
+              type="range"
+              id="spirit-volume"
+              min="0"
+              max="100"
+              value="70"
+            />
+          </div>
+
+          <div class="slider-group">
+            <label for="spirit-speed">
+              Vitesse du balayage : <span id="spirit-speed-value">450</span> ms
+            </label>
+            <input
+              type="range"
+              id="spirit-speed"
+              min="120"
+              max="1000"
+              value="450"
+            />
+          </div>
+
+          <p class="status-text" id="spirit-status">
+            Prêt. Utilisez ce module comme support rituel et d’intuition, pas comme instrument de mesure.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Fragments « perçus » (générés aléatoirement)</h3>
+          <div id="spirit-log" class="spirit-log">
+            <p class="empty-state">
+              Les fragments textuels apparaîtront ici pendant le fonctionnement de la Spirit Box.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION OUI-JA -->
+      <section id="ouija" class="section">
+        <h2>Planche Oui-Ja digitale</h2>
+        <p class="section-description">
+          Utilisez cette planche Oui-Ja comme support symbolique : vous pouvez cliquer sur les lettres,
+          ou laisser le mode auto proposer un mouvement « inspiré ». Cette interface n’est pas un instrument
+          scientifique, mais un outil rituel et projectif.
+        </p>
+
+        <div class="card">
+          <div class="ouija-board" id="ouija-board">
+            <div id="ouija-planchette" class="ouija-planchette"></div>
+
+            <!-- Lignes de lettres -->
+            <div class="ouija-cell" data-symbol="A">A</div>
+            <div class="ouija-cell" data-symbol="B">B</div>
+            <div class="ouija-cell" data-symbol="C">C</div>
+            <div class="ouija-cell" data-symbol="D">D</div>
+            <div class="ouija-cell" data-symbol="E">E</div>
+            <div class="ouija-cell" data-symbol="F">F</div>
+            <div class="ouija-cell" data-symbol="G">G</div>
+
+            <div class="ouija-cell" data-symbol="H">H</div>
+            <div class="ouija-cell" data-symbol="I">I</div>
+            <div class="ouija-cell" data-symbol="J">J</div>
+            <div class="ouija-cell" data-symbol="K">K</div>
+            <div class="ouija-cell" data-symbol="L">L</div>
+            <div class="ouija-cell" data-symbol="M">M</div>
+            <div class="ouija-cell" data-symbol="N">N</div>
+
+            <div class="ouija-cell" data-symbol="O">O</div>
+            <div class="ouija-cell" data-symbol="P">P</div>
+            <div class="ouija-cell" data-symbol="Q">Q</div>
+            <div class="ouija-cell" data-symbol="R">R</div>
+            <div class="ouija-cell" data-symbol="S">S</div>
+            <div class="ouija-cell" data-symbol="T">T</div>
+            <div class="ouija-cell" data-symbol="U">U</div>
+
+            <div class="ouija-cell" data-symbol="V">V</div>
+            <div class="ouija-cell" data-symbol="W">W</div>
+            <div class="ouija-cell" data-symbol="X">X</div>
+            <div class="ouija-cell" data-symbol="Y">Y</div>
+            <div class="ouija-cell" data-symbol="Z">Z</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="OUI">OUI</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="NON">NON</div>
+
+            <!-- Ligne spéciale -->
+            <div class="ouija-cell ouija-cell-special" data-symbol="ESPACE">␣ ESPACE</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="EFFACER">← EFFACER</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="FIN">FIN</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="?">?</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="MERCI">MERCI</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="DEBUT">DÉBUT</div>
+            <div class="ouija-cell ouija-cell-special" data-symbol="STOP">STOP</div>
+          </div>
+
+          <div class="controls-row">
+            <button id="ouija-clear" class="secondary-btn">Effacer le message</button>
+            <button id="ouija-auto" class="primary-btn">✨ Tirage auto (symbolique)</button>
+          </div>
+
+          <p class="status-text" id="ouija-status">
+            Cliquez sur une case ou utilisez le tirage auto. Laissez venir vos ressentis, vos intuitions,
+            et utilisez ce qui apparaît comme support de lecture médiumnique.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Message en cours</h3>
+          <p id="ouija-current" class="ouija-current">
+            (aucun symbole pour l’instant)
+          </p>
+
+          <h3 style="margin-top: 10px;">Historique des messages</h3>
+          <div id="ouija-history" class="ouija-history">
+            <p class="empty-state">Aucun message n’a encore été enregistré.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION CAPTEURS & AMBIANCE -->
+      <section id="sensors" class="section">
+        <h2>Capteurs & Ambiance</h2>
+        <p class="section-description">
+          Lecture symbolique de l’orientation et des micro-mouvements de l’appareil pour vous aider
+          à ressentir « l’ambiance du lieu ». Ce module utilise les capteurs standards (quand disponibles)
+          et ne mesure rien de surnaturel.
+        </p>
+
+        <div class="card">
+          <div class="controls-row">
+            <button id="sensors-activate" class="primary-btn">
+              📱 Activer les capteurs (si nécessaire)
+            </button>
+            <span id="sensors-status" class="status-text">
+              En attente d’activation. Sur certains téléphones (iOS), vous devrez autoriser l’accès au mouvement.
+            </span>
+          </div>
+
+          <div class="sensors-layout">
+            <div class="sensor-gauge">
+              <div class="sensor-gauge-inner">
+                <div id="sensor-gauge-needle" class="sensor-gauge-needle"></div>
+                <div class="sensor-gauge-center"></div>
+              </div>
+              <div class="sensor-gauge-label">
+                Niveau symbolique d’« énergie » : <span id="sensor-energy-value">0</span>/100
+              </div>
+            </div>
+
+            <div class="sensor-values">
+              <div class="sensor-values-row">
+                <span>Orientation (°)</span>
+                <span class="sensor-values-sub">
+                  α=<span id="sensor-alpha">0</span> • β=<span id="sensor-beta">0</span> • γ=<span id="sensor-gamma">0</span>
+                </span>
+              </div>
+              <div class="sensor-values-row">
+                <span>Amplitude du mouvement</span>
+                <span class="sensor-values-sub">
+                  <span id="sensor-motion">0.00</span>
+                </span>
+              </div>
+              <div class="sensor-values-row">
+                <span>Interprétation symbolique</span>
+                <span id="sensor-interpretation" class="sensor-values-sub">
+                  En attente de données…
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Fluctuations récentes</h3>
+          <div id="sensors-log" class="sensors-log">
+            <p class="empty-state">
+              Les variations seront listées ici lorsque l’appareil sera en mouvement ou orienté différemment.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION JOURNAL -->
+      <section id="journal" class="section">
+        <h2>Journal des séances</h2>
+        <p class="section-description">
+          Notez vos séances : contexte, impressions, outils utilisés. Les données sont stockées localement sur cet appareil
+          (localStorage) et ne sont pas envoyées en ligne.
+        </p>
+
+        <div class="card">
+          <form id="journal-form" class="journal-form">
+            <div class="journal-row">
+              <div class="journal-field">
+                <label for="journal-date">Date</label>
+                <input type="date" id="journal-date" required />
+              </div>
+              <div class="journal-field">
+                <label for="journal-time">Heure</label>
+                <input type="time" id="journal-time" />
+              </div>
+              <div class="journal-field">
+                <label for="journal-location">Lieu</label>
+                <input type="text" id="journal-location" placeholder="Ex : Cabinet, domicile, extérieur…" />
+              </div>
+            </div>
+
+            <div class="journal-row">
+              <div class="journal-field">
+                <label for="journal-type">Type de séance</label>
+                <input
+                  type="text"
+                  id="journal-type"
+                  placeholder="Ex : contact défunt, nettoyage, guidances…"
+                />
+              </div>
+            </div>
+
+            <div class="journal-row journal-row-checkboxes">
+              <span class="journal-label-inline">Outils utilisés :</span>
+              <label><input type="checkbox" id="journal-used-pve" /> PVE</label>
+              <label><input type="checkbox" id="journal-used-spiritbox" /> Spirit Box</label>
+              <label><input type="checkbox" id="journal-used-ouija" /> Oui-Ja</label>
+              <label><input type="checkbox" id="journal-used-autre" /> Autres pratiques</label>
+            </div>
+
+            <div class="journal-row">
+              <div class="journal-field">
+                <label for="journal-notes">Impressions / messages / ressentis</label>
+                <textarea
+                  id="journal-notes"
+                  rows="4"
+                  placeholder="Note ici les moments forts, les messages perçus, les sensations corporelles, les synchronicités…"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="controls-row">
+              <button type="submit" class="primary-btn">💾 Enregistrer la séance</button>
+              <button type="button" id="journal-clear-all" class="secondary-btn">
+                Effacer tout le journal (local)
+              </button>
+            </div>
+
+            <p class="status-text" id="journal-status">
+              Les séances sont sauvegardées uniquement sur cet appareil (dans le navigateur).
+            </p>
+          </form>
+        </div>
+
+        <div class="card">
+          <h3>Séances enregistrées</h3>
+          <div id="journal-list" class="journal-list">
+            <p class="empty-state">
+              Aucune séance enregistrée pour l’instant. Utilisez le formulaire ci-dessus après une séance.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
