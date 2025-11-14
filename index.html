@@ -9,19 +9,24 @@
 <body>
   <div class="app-container">
     <aside class="sidebar">
-      <h1 class="logo">SpiritWeb</h1>
-      <p class="tagline">Outil spirite personnel</p>
+      <div class="sidebar-header">
+        <div>
+          <h1 class="logo">SpiritWeb</h1>
+          <p class="tagline">Outil spirite personnel</p>
+        </div>
+      </div>
 
       <nav class="nav">
         <button class="nav-btn active" data-section="pve">PVE</button>
         <button class="nav-btn" data-section="spirit-box">Spirit Box</button>
         <button class="nav-btn" data-section="ouija">Planche Oui-Ja</button>
-        <button class="nav-btn" data-section="sensors">Capteurs & Ambiance</button>
-        <button class="nav-btn" data-section="journal">Journal des séances</button>
+        <button class="nav-btn" data-section="sensors">Capteurs</button>
+        <button class="nav-btn" data-section="camera">Détecteur visuel</button>
+        <button class="nav-btn" data-section="journal">Journal</button>
       </nav>
 
       <footer class="sidebar-footer">
-        <small>Créé pour Joffrey • v0.5</small>
+        <small>Créé pour Joffrey • v0.7</small>
       </footer>
     </aside>
 
@@ -245,6 +250,68 @@
           <div id="sensors-log" class="sensors-log">
             <p class="empty-state">
               Les variations seront listées ici lorsque l’appareil sera en mouvement ou orienté différemment.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION CAMERA / DÉTECTEUR VISUEL -->
+      <section id="camera" class="section">
+        <h2>Détecteur visuel (caméra)</h2>
+        <p class="section-description">
+          Ce module utilise la caméra pour amplifier les variations visuelles (mouvement, bruit, changements de lumière).
+          Il ne détecte rien de surnaturel : considérez-le comme un amplificateur symbolique de ce que l’œil ne remarque pas toujours.
+        </p>
+
+        <div class="card">
+          <div class="controls-row">
+            <button id="camera-start" class="primary-btn">📸 Lancer la caméra</button>
+            <button id="camera-stop" class="secondary-btn" disabled>■ Stop</button>
+            <span id="camera-status" class="status-text">
+              Caméra inactive.
+            </span>
+          </div>
+
+          <div class="camera-layout">
+            <div class="camera-preview-wrapper">
+              <video id="camera-video" autoplay muted playsinline></video>
+              <canvas id="camera-canvas"></canvas>
+            </div>
+
+            <div class="camera-panel">
+              <div class="camera-row">
+                <span>Niveau d’agitation visuelle :</span>
+                <span class="camera-value">
+                  <span id="camera-score">0</span> / 100
+                </span>
+              </div>
+              <div class="camera-row">
+                <label for="camera-sensitivity">
+                  Sensibilité : <span id="camera-sensitivity-value">60</span>%
+                </label>
+                <input
+                  type="range"
+                  id="camera-sensitivity"
+                  min="10"
+                  max="100"
+                  value="60"
+                />
+              </div>
+              <div class="camera-row">
+                <span>Interprétation symbolique :</span>
+                <p id="camera-interpretation" class="camera-interpretation">
+                  En attente d’images… Placez la caméra vers une zone stable du lieu.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Variations marquées récentes</h3>
+          <div id="camera-log" class="camera-log">
+            <p class="empty-state">
+              Les pics d’agitation visuelle apparaîtront ici (mouvements, changements lumineux, etc.).
             </p>
           </div>
         </div>
