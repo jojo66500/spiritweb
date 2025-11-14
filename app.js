@@ -46,11 +46,11 @@ function formatTime(seconds) {
 
 function startTimer() {
   recordStartTime = Date.now();
-  timerEl.textContent = "00:00";
+  if (timerEl) timerEl.textContent = "00:00";
 
   timerInterval = setInterval(() => {
     const diff = Math.floor((Date.now() - recordStartTime) / 1000);
-    timerEl.textContent = formatTime(diff);
+    if (timerEl) timerEl.textContent = formatTime(diff);
   }, 1000);
 }
 
@@ -90,8 +90,8 @@ async function startRecording() {
     isRecording = true;
     startTimer();
     updateStatus("Enregistrement en cours… restez attentif à l’ambiance.");
-    startBtn.disabled = true;
-    stopBtn.disabled = false;
+    if (startBtn) startBtn.disabled = true;
+    if (stopBtn) stopBtn.disabled = false;
   } catch (err) {
     console.error(err);
     updateStatus("Permission refusée ou erreur lors de l'accès au micro.");
@@ -104,11 +104,13 @@ function stopRecording() {
   isRecording = false;
   stopTimer();
   updateStatus("Enregistrement terminé. Écoutez et analysez vos PVE.");
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
+  if (startBtn) startBtn.disabled = false;
+  if (stopBtn) stopBtn.disabled = true;
 }
 
 function appendRecording(url, blob) {
+  if (!recordingsList) return;
+
   const emptyItem = recordingsList.querySelector(".empty-state");
   if (emptyItem) {
     emptyItem.remove();
@@ -214,6 +216,7 @@ function createNoiseBuffer(ctx, durationSeconds = 2) {
 }
 
 function updateSpiritVolume() {
+  if (!spiritVolumeSlider || !spiritVolumeValue) return;
   const value = Number(spiritVolumeSlider.value);
   spiritVolumeValue.textContent = value;
   if (gainNode) {
@@ -222,6 +225,7 @@ function updateSpiritVolume() {
 }
 
 function updateSpiritSpeed() {
+  if (!spiritSpeedSlider || !spiritSpeedValue) return;
   const value = Number(spiritSpeedSlider.value);
   spiritSpeedValue.textContent = value;
   if (sweepInterval && spiritRunning) {
@@ -231,8 +235,8 @@ function updateSpiritSpeed() {
 }
 
 function startSweepInterval() {
+  if (!spiritSpeedSlider || !gainNode) return;
   const period = Number(spiritSpeedSlider.value);
-  if (!gainNode) return;
 
   sweepInterval = setInterval(() => {
     if (!spiritRunning) return;
@@ -300,8 +304,8 @@ async function startSpiritBox() {
     startSweepInterval();
     startFragmentStream();
 
-    spiritStartBtn.disabled = true;
-    spiritStopBtn.disabled = false;
+    if (spiritStartBtn) spiritStartBtn.disabled = true;
+    if (spiritStopBtn) spiritStopBtn.disabled = false;
     setSpiritStatus(
       "Spirit Box en cours… utilisez-la comme support d’écoute et d’intuition, pas comme mesure scientifique."
     );
@@ -332,8 +336,8 @@ function stopSpiritBox() {
     fragmentInterval = null;
   }
 
-  spiritStartBtn.disabled = false;
-  spiritStopBtn.disabled = true;
+  if (spiritStartBtn) spiritStartBtn.disabled = false;
+  if (spiritStopBtn) spiritStopBtn.disabled = true;
   setSpiritStatus("Spirit Box arrêtée. Prenez un moment pour noter vos ressentis.");
 }
 
@@ -792,7 +796,7 @@ function interpretEnergy(energy) {
 function logSensorsEvent(energy, motionMag) {
   if (!sensorsLog) return;
   const now = Date.now();
-  if (now - lastLogTime < 1500) return; // éviter de spammer
+  if (now - lastLogTime < 1500) return;
   lastLogTime = now;
 
   const empty = sensorsLog.querySelector(".empty-state");
@@ -848,7 +852,6 @@ async function activateSensors() {
   }
 
   try {
-    // iOS nécessite une permission explicite
     const needsPermission =
       typeof DeviceMotionEvent !== "undefined" &&
       typeof DeviceMotionEvent.requestPermission === "function";
@@ -886,4 +889,211 @@ async function activateSensors() {
 
 if (sensorsActivateBtn) {
   sensorsActivateBtn.addEventListener("click", activateSensors);
+}
+
+// --- MODULE CAMERA / DÉTECTEUR VISUEL ---
+
+const cameraStartBtn = document.getElementById("camera-start");
+const cameraStopBtn = document.getElementById("camera-stop");
+const cameraStatusEl = document.getElementById("camera-status");
+const cameraVideo = document.getElementById("camera-video");
+const cameraCanvas = document.getElementById("camera-canvas");
+const cameraScoreEl = document.getElementById("camera-score");
+const cameraSensitivitySlider = document.getElementById("camera-sensitivity");
+const cameraSensitivityValue = document.getElementById("camera-sensitivity-value");
+const cameraInterpretationEl = document.getElementById("camera-interpretation");
+const cameraLog = document.getElementById("camera-log");
+
+let cameraStream = null;
+let cameraCtx = null;
+let prevFrameData = null;
+let cameraLoopId = null;
+
+function setCameraStatus(text) {
+  if (cameraStatusEl) cameraStatusEl.textContent = text;
+}
+
+function updateCameraSensitivityLabel() {
+  if (!cameraSensitivitySlider || !cameraSensitivityValue) return;
+  cameraSensitivityValue.textContent = cameraSensitivitySlider.value;
+}
+
+updateCameraSensitivityLabel();
+if (cameraSensitivitySlider) {
+  cameraSensitivitySlider.addEventListener("input", updateCameraSensitivityLabel);
+}
+
+function interpretCameraScore(score) {
+  if (!cameraInterpretationEl) return;
+  let text = "";
+  if (score < 8) {
+    text = "Scène visuellement stable. Ambiance calme sur le plan des images.";
+  } else if (score < 20) {
+    text = "Légères variations : petits mouvements, changements de lumière ordinaires.";
+  } else if (score < 40) {
+    text = "Variations notables : mouvements, ombres, changements de contraste plus marqués.";
+  } else {
+    text =
+      "Agitation visuelle forte : déplacements, variations lumineuses ou bruit vidéo important. Interprétez cela symboliquement, en priorité avec vos ressentis.";
+  }
+  cameraInterpretationEl.textContent = text;
+}
+
+function logCameraSpike(score) {
+  if (!cameraLog) return;
+  const now = new Date();
+  const timeLabel = now.toLocaleTimeString();
+
+  const empty = cameraLog.querySelector(".empty-state");
+  if (empty) empty.remove();
+
+  const entry = document.createElement("div");
+  entry.className = "camera-log-entry";
+  entry.textContent = `[${timeLabel}] Pic d’agitation ≈ ${Math.round(score)}/100`;
+  cameraLog.prepend(entry);
+}
+
+function processCameraFrame() {
+  if (!cameraVideo || !cameraCanvas || !cameraCtx || !cameraStream) {
+    cameraLoopId = requestAnimationFrame(processCameraFrame);
+    return;
+  }
+
+  const w = cameraVideo.videoWidth;
+  const h = cameraVideo.videoHeight;
+  if (!w || !h) {
+    cameraLoopId = requestAnimationFrame(processCameraFrame);
+    return;
+  }
+
+  const targetWidth = 240;
+  const ratio = h / w;
+  const cw = targetWidth;
+  const ch = Math.round(targetWidth * ratio);
+
+  cameraCanvas.width = cw;
+  cameraCanvas.height = ch;
+
+  cameraCtx.drawImage(cameraVideo, 0, 0, cw, ch);
+  const frame = cameraCtx.getImageData(0, 0, cw, ch);
+
+  if (!prevFrameData) {
+    prevFrameData = frame.data.slice(0);
+    cameraLoopId = requestAnimationFrame(processCameraFrame);
+    return;
+  }
+
+  const sensitivity = cameraSensitivitySlider
+    ? Number(cameraSensitivitySlider.value)
+    : 60;
+
+  const threshold = (15 * (110 - sensitivity)) / 100;
+  let diffSum = 0;
+  let count = 0;
+
+  const data = frame.data;
+  const prev = prevFrameData;
+  const len = data.length;
+
+  for (let i = 0; i < len; i += 4) {
+    const dr = data[i] - prev[i];
+    const dg = data[i + 1] - prev[i + 1];
+    const db = data[i + 2] - prev[i + 2];
+
+    const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+    diffSum += dist;
+    count++;
+
+    if (dist > threshold * 3) {
+      data[i] = 255;
+      data[i + 1] = 255;
+      data[i + 2] = 255;
+      data[i + 3] = 200;
+    } else if (dist > threshold) {
+      data[i] = 0;
+      data[i + 1] = 255;
+      data[i + 2] = 170;
+      data[i + 3] = 160;
+    } else {
+      data[i + 3] = 0;
+    }
+  }
+
+  const avgDiff = diffSum / count;
+  const normalizedScore = Math.max(0, Math.min(100, (avgDiff / 70) * 100));
+
+  if (cameraScoreEl) {
+    cameraScoreEl.textContent = Math.round(normalizedScore);
+  }
+
+  interpretCameraScore(normalizedScore);
+  cameraCtx.putImageData(frame, 0, 0);
+
+  if (normalizedScore > 35) {
+    logCameraSpike(normalizedScore);
+  }
+
+  prevFrameData = frame.data.slice(0);
+  cameraLoopId = requestAnimationFrame(processCameraFrame);
+}
+
+async function startCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    setCameraStatus("Caméra non supportée sur ce navigateur.");
+    return;
+  }
+
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+      audio: false
+    });
+
+    cameraVideo.srcObject = cameraStream;
+    cameraVideo.onloadedmetadata = () => {
+      cameraVideo.play();
+      if (!cameraCtx && cameraCanvas) {
+        cameraCtx = cameraCanvas.getContext("2d");
+      }
+      prevFrameData = null;
+      if (cameraLoopId) cancelAnimationFrame(cameraLoopId);
+      cameraLoopId = requestAnimationFrame(processCameraFrame);
+    };
+
+    if (cameraStartBtn) cameraStartBtn.disabled = true;
+    if (cameraStopBtn) cameraStopBtn.disabled = false;
+
+    setCameraStatus(
+      "Caméra active. Dirigez l’appareil vers la zone souhaitée et observez les variations amplifiées."
+    );
+  } catch (e) {
+    console.error(e);
+    setCameraStatus("Impossible d’accéder à la caméra (permission refusée ou erreur).");
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach((t) => t.stop());
+    cameraStream = null;
+  }
+  if (cameraLoopId) {
+    cancelAnimationFrame(cameraLoopId);
+    cameraLoopId = null;
+  }
+  prevFrameData = null;
+
+  if (cameraCtx && cameraCanvas) {
+    cameraCtx.clearRect(0, 0, cameraCanvas.width, cameraCanvas.height);
+  }
+
+  if (cameraStartBtn) cameraStartBtn.disabled = false;
+  if (cameraStopBtn) cameraStopBtn.disabled = true;
+
+  setCameraStatus("Caméra inactive.");
+}
+
+if (cameraStartBtn && cameraStopBtn && cameraVideo && cameraCanvas) {
+  cameraStartBtn.addEventListener("click", startCamera);
+  cameraStopBtn.addEventListener("click", stopCamera);
 }
