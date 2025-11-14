@@ -24,14 +24,25 @@ body {
   width: 260px;
   background: linear-gradient(180deg, #05060a, #101322);
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 20px 18px;
+  padding: 16px 14px 18px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  z-index: 20;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
 }
 
 .logo {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 600;
@@ -39,26 +50,27 @@ body {
 }
 
 .tagline {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #a0a4c3;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .nav-btn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 0.9rem;
+  padding: 7px 12px;
+  font-size: 0.86rem;
   text-align: left;
   color: #d2d5f2;
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.18s ease;
 }
 
@@ -75,7 +87,7 @@ body {
 
 .sidebar-footer {
   margin-top: auto;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #7d82a3;
 }
 
@@ -83,7 +95,7 @@ body {
 
 .main {
   flex: 1;
-  padding: 24px 28px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -297,16 +309,27 @@ body {
   margin-right: 6px;
 }
 
-/* OUI-JA BOARD */
+/* OUI-JA BOARD (style "vraie planche") */
 
 .ouija-board {
   position: relative;
   margin-top: 6px;
   margin-bottom: 10px;
-  padding: 18px 14px 20px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: radial-gradient(circle at top, rgba(46, 51, 90, 0.6), rgba(8, 10, 24, 0.95));
+  padding: 22px 18px 24px;
+  border-radius: 26px;
+  border: 2px solid rgba(60, 40, 20, 0.9);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 55%),
+    repeating-linear-gradient(
+      135deg,
+      #4b341e,
+      #4b341e 10px,
+      #3b2816 10px,
+      #3b2816 20px
+    );
+  box-shadow:
+    inset 0 0 0 2px rgba(250, 220, 160, 0.35),
+    0 16px 40px rgba(0, 0, 0, 0.9);
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
@@ -316,43 +339,95 @@ body {
 .ouija-cell {
   position: relative;
   text-align: center;
-  padding: 10px 4px;
+  padding: 11px 4px;
   font-size: 0.9rem;
   text-transform: uppercase;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(0, 0, 0, 0.25);
-  color: #e3e4ff;
+  border: 1px solid rgba(15, 8, 4, 0.6);
+  background: radial-gradient(circle at top, rgba(255, 245, 220, 0.25), rgba(60, 35, 18, 0.9));
+  color: #fef3c7;
+  letter-spacing: 0.08em;
   cursor: pointer;
   user-select: none;
-  transition: background 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  transition:
+    background 0.12s ease,
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .ouija-cell:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.3), rgba(70, 40, 20, 0.95));
   transform: translateY(-1px);
-  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.8);
+  border-color: rgba(250, 204, 165, 0.85);
 }
 
 .ouija-cell-special {
-  font-size: 0.8rem;
-  color: #f9d98f;
+  font-size: 0.78rem;
+  color: #fde68a;
 }
+
+/* Planchette flèche */
 
 .ouija-planchette {
   position: absolute;
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 18px rgba(250, 250, 255, 0.7);
+  width: 70px;
+  height: 90px;
+  border-radius: 50% 50% 45% 45%;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18), transparent 45%),
+    radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.1), transparent 55%),
+    repeating-linear-gradient(
+      145deg,
+      #f5deb3,
+      #f5deb3 10px,
+      #e0c08d 10px,
+      #e0c08d 20px
+    );
+  border: 2px solid rgba(87, 54, 26, 0.95);
+  box-shadow:
+    0 14px 22px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
   pointer-events: none;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  backdrop-filter: blur(4px);
-  background: radial-gradient(circle at center, rgba(255,255,255,0.25), rgba(0,0,0,0.7));
-  transition: top 0.22s ease, left 0.22s ease, transform 0.22s ease;
+  transform: translate(-50%, -60%) rotate(-8deg);
+  transition:
+    top 0.22s ease,
+    left 0.22s ease,
+    transform 0.22s ease;
+}
+
+.ouija-planchette::before {
+  content: "";
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 2px solid rgba(120, 65, 30, 0.9);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.25),
+    inset 0 0 8px rgba(0, 0, 0, 0.8);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.85), rgba(60, 40, 20, 0.6));
+}
+
+.ouija-planchette::after {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7c441d, #4b2a10);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.8);
 }
 
 /* OUI-JA MESSAGE */
@@ -605,14 +680,192 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* CAMERA / DÉTECTEUR VISUEL */
+
+.camera-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+  align-items: flex-start;
+}
+
+.camera-preview-wrapper {
+  position: relative;
+  flex: 0 0 260px;
+  max-width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.85);
+  background: #000;
+}
+
+#camera-video,
+#camera-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+#camera-video {
+  filter: saturate(0.6) contrast(1.1);
+}
+
+#camera-canvas {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+}
+
+.camera-panel {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.84rem;
+}
+
+.camera-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.camera-value {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem;
+  color: #bfdbfe;
+}
+
+.camera-row label {
+  font-size: 0.82rem;
+  color: #c4c7e6;
+}
+
+#camera-sensitivity {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+#camera-sensitivity::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #22c55e;
+  cursor: pointer;
+}
+
+#camera-sensitivity::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: none;
+  cursor: pointer;
+}
+
+.camera-interpretation {
+  font-size: 0.82rem;
+  color: #a7b0e2;
+}
+
+.camera-log {
+  max-height: 260px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+  font-size: 0.82rem;
+}
+
+.camera-log-entry {
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
 /* RESPONSIVE */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
+  .app-container {
+    flex-direction: column;
+  }
+
   .sidebar {
-    display: none;
+    width: 100%;
+    padding: 10px 12px 12px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 8px;
+  }
+
+  .sidebar-header {
+    margin-bottom: 4px;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+  }
+
+  .nav {
+    flex-direction: row;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .nav-btn {
+    font-size: 0.8rem;
+    padding: 6px 10px;
   }
 
   .main {
-    padding: 16px;
+    padding: 14px 12px 20px;
+  }
+
+  .sensors-layout,
+  .camera-layout {
+    flex-direction: column;
+  }
+
+  .sensor-gauge {
+    margin: 0 auto;
+  }
+
+  .ouija-board {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 18px 10px 20px;
+  }
+
+  .ouija-planchette {
+    width: 60px;
+    height: 78px;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 14px 12px;
+  }
+
+  .controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timer {
+    align-self: flex-start;
   }
 }
