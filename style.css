@@ -486,6 +486,7 @@ body {
     top 0.22s ease,
     left 0.22s ease,
     transform 0.22s ease;
+  z-index: 5; /* Planchette au-dessus des lettres */
 }
 
 .ouija-planchette::before {
