@@ -24,25 +24,14 @@ body {
   width: 260px;
   background: linear-gradient(180deg, #05060a, #101322);
   border-right: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 16px 14px 18px;
+  padding: 20px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
-  z-index: 20;
-}
-
-.sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 6px;
+  gap: 18px;
 }
 
 .logo {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 600;
@@ -50,27 +39,26 @@ body {
 }
 
 .tagline {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #a0a4c3;
 }
 
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .nav-btn {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 0.86rem;
+  padding: 8px 14px;
+  font-size: 0.9rem;
   text-align: left;
   color: #d2d5f2;
   cursor: pointer;
-  white-space: nowrap;
   transition: all 0.18s ease;
 }
 
@@ -87,7 +75,7 @@ body {
 
 .sidebar-footer {
   margin-top: auto;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: #7d82a3;
 }
 
@@ -95,7 +83,7 @@ body {
 
 .main {
   flex: 1;
-  padding: 20px 24px;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -198,6 +186,54 @@ body {
   margin-top: 4px;
 }
 
+/* Toggle */
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #d2d5f2;
+}
+
+.toggle input {
+  display: none;
+}
+
+.toggle-slider {
+  width: 40px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+  transition: background 0.15s ease;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #f9fafb;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.15s ease;
+}
+
+.toggle input:checked + .toggle-slider {
+  background: linear-gradient(135deg, #22c55e, #a3e635);
+}
+
+.toggle input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.toggle-label {
+  opacity: 0.9;
+}
+
 /* PVE LIST */
 
 .recordings-list {
@@ -256,7 +292,8 @@ body {
   color: #c4c7e6;
 }
 
-.slider-group input[type="range"] {
+.slider-group input[type="range"],
+#camera-sensitivity {
   width: 100%;
   -webkit-appearance: none;
   appearance: none;
@@ -266,7 +303,8 @@ body {
   outline: none;
 }
 
-.slider-group input[type="range"]::-webkit-slider-thumb {
+.slider-group input[type="range"]::-webkit-slider-thumb,
+#camera-sensitivity::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 16px;
@@ -276,7 +314,8 @@ body {
   cursor: pointer;
 }
 
-.slider-group input[type="range"]::-moz-range-thumb {
+.slider-group input[type="range"]::-moz-range-thumb,
+#camera-sensitivity::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -309,14 +348,14 @@ body {
   margin-right: 6px;
 }
 
-/* OUI-JA BOARD (style "vraie planche") */
+/* OUI-JA BOARD – PLANCHE BOIS + ARC DE CERCLE */
 
 .ouija-board {
   position: relative;
   margin-top: 6px;
   margin-bottom: 10px;
-  padding: 22px 18px 24px;
-  border-radius: 26px;
+  padding: 26px 18px 26px;
+  border-radius: 28px;
   border: 2px solid rgba(60, 40, 20, 0.9);
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 55%),
@@ -330,16 +369,60 @@ body {
   box-shadow:
     inset 0 0 0 2px rgba(250, 220, 160, 0.35),
     0 16px 40px rgba(0, 0, 0, 0.9);
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   overflow: hidden;
 }
+
+.ouija-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Légère courbure visuelle des arcs */
+
+.ouija-row-top .ouija-cell:nth-child(1),
+.ouija-row-top .ouija-cell:nth-child(13) {
+  transform: translateY(10px) rotate(-10deg);
+}
+
+.ouija-row-top .ouija-cell:nth-child(2),
+.ouija-row-top .ouija-cell:nth-child(12) {
+  transform: translateY(6px) rotate(-6deg);
+}
+
+.ouija-row-top .ouija-cell:nth-child(3),
+.ouija-row-top .ouija-cell:nth-child(11) {
+  transform: translateY(2px) rotate(-3deg);
+}
+
+.ouija-row-top .ouija-cell:nth-child(6),
+.ouija-row-top .ouija-cell:nth-child(8) {
+  transform: translateY(-4px);
+}
+
+.ouija-row-top .ouija-cell:nth-child(7) {
+  transform: translateY(-6px);
+}
+
+.ouija-row-middle .ouija-cell:nth-child(1),
+.ouija-row-middle .ouija-cell:nth-child(13) {
+  transform: translateY(3px);
+}
+
+.ouija-row-middle .ouija-cell:nth-child(7) {
+  transform: translateY(-4px);
+}
+
+/* Cellules */
 
 .ouija-cell {
   position: relative;
   text-align: center;
-  padding: 11px 4px;
+  padding: 9px 6px;
+  min-width: 30px;
   font-size: 0.9rem;
   text-transform: uppercase;
   border-radius: 999px;
@@ -370,16 +453,16 @@ body {
   color: #fde68a;
 }
 
-/* Planchette flèche */
+/* Curseur médiator en bois */
 
 .ouija-planchette {
   position: absolute;
-  width: 70px;
+  width: 80px;
   height: 90px;
-  border-radius: 50% 50% 45% 45%;
+  clip-path: polygon(50% 0%, 96% 42%, 78% 100%, 22% 100%, 4% 42%);
   background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.18), transparent 45%),
-    radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.1), transparent 55%),
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.2), transparent 45%),
+    radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.12), transparent 55%),
     repeating-linear-gradient(
       145deg,
       #f5deb3,
@@ -404,30 +487,17 @@ body {
 .ouija-planchette::before {
   content: "";
   position: absolute;
-  top: 25%;
+  top: 22%;
   left: 50%;
   transform: translateX(-50%);
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   border: 2px solid rgba(120, 65, 30, 0.9);
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.25),
     inset 0 0 8px rgba(0, 0, 0, 0.8);
   background: radial-gradient(circle, rgba(0, 0, 0, 0.85), rgba(60, 40, 20, 0.6));
-}
-
-.ouija-planchette::after {
-  content: "";
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 22px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #7c441d, #4b2a10);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.8);
 }
 
 /* OUI-JA MESSAGE */
@@ -698,7 +768,6 @@ body {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.85);
-  background: #000;
 }
 
 #camera-video,
@@ -745,35 +814,6 @@ body {
   color: #c4c7e6;
 }
 
-#camera-sensitivity {
-  width: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  outline: none;
-}
-
-#camera-sensitivity::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #22c55e;
-  cursor: pointer;
-}
-
-#camera-sensitivity::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #22c55e;
-  border: none;
-  cursor: pointer;
-}
-
 .camera-interpretation {
   font-size: 0.82rem;
   color: #a7b0e2;
@@ -796,46 +836,30 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE MOBILE */
 
 @media (max-width: 900px) {
-  .app-container {
-    flex-direction: column;
-  }
-
   .sidebar {
-    width: 100%;
-    padding: 10px 12px 12px;
-    border-right: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    gap: 8px;
-  }
-
-  .sidebar-header {
-    margin-bottom: 4px;
-  }
-
-  .logo {
-    font-size: 1.1rem;
-  }
-
-  .nav {
-    flex-direction: row;
-    gap: 6px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-  }
-
-  .nav-btn {
-    font-size: 0.8rem;
-    padding: 6px 10px;
+    display: none;
   }
 
   .main {
-    padding: 14px 12px 20px;
+    padding: 14px 12px 18px;
   }
 
-  .sensors-layout,
+  .card {
+    padding: 12px 12px;
+  }
+
+  .controls-row {
+    gap: 8px;
+  }
+
+  .ouija-board {
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+
   .camera-layout {
     flex-direction: column;
   }
@@ -843,29 +867,14 @@ body {
   .sensor-gauge {
     margin: 0 auto;
   }
-
-  .ouija-board {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    padding: 18px 10px 20px;
-  }
-
-  .ouija-planchette {
-    width: 60px;
-    height: 78px;
-  }
 }
 
 @media (max-width: 480px) {
-  .card {
-    padding: 14px 12px;
+  .main {
+    padding: 10px 8px 16px;
   }
 
-  .controls-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .timer {
-    align-self: flex-start;
+  .ouija-board {
+    transform: scale(0.82);
   }
 }
