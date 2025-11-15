@@ -189,7 +189,6 @@ const spiritNeutralWords = [
 function getRandomSpiritFragment() {
   const poolChoice = Math.random();
   if (poolChoice < 0.6) {
-    // une ou deux syllabes
     const first = spiritSyllables[Math.floor(Math.random() * spiritSyllables.length)];
     if (Math.random() < 0.4) {
       const second = spiritSyllables[Math.floor(Math.random() * spiritSyllables.length)];
@@ -922,11 +921,42 @@ const cameraSensitivitySlider = document.getElementById("camera-sensitivity");
 const cameraSensitivityValue = document.getElementById("camera-sensitivity-value");
 const cameraInterpretationEl = document.getElementById("camera-interpretation");
 const cameraLog = document.getElementById("camera-log");
+const cameraScoreLabelEl = document.getElementById("camera-score-label");
+const cameraFaceInfoEl = document.getElementById("camera-face-info");
+const cameraModeInputs = document.querySelectorAll('input[name="camera-mode"]');
 
 let cameraStream = null;
 let cameraCtx = null;
 let prevFrameData = null;
 let cameraLoopId = null;
+
+// mode courant : "movement" ou "coldspots"
+let cameraMode = "movement";
+
+// Détection de visages (API expérimentale)
+let faceDetector = null;
+let lastFaceCheck = 0;
+
+if ("FaceDetector" in window) {
+  try {
+    faceDetector = new FaceDetector({ fastMode: true, maxDetectedFaces: 5 });
+    if (cameraFaceInfoEl) {
+      cameraFaceInfoEl.textContent =
+        "API de détection de visages disponible. Analyse en cours…";
+    }
+  } catch (e) {
+    faceDetector = null;
+    if (cameraFaceInfoEl) {
+      cameraFaceInfoEl.textContent =
+        "Erreur lors de l'initialisation de la détection de visages.";
+    }
+  }
+} else {
+  if (cameraFaceInfoEl) {
+    cameraFaceInfoEl.textContent =
+      "Détection de visages non supportée sur ce navigateur.";
+  }
+}
 
 function setCameraStatus(text) {
   if (cameraStatusEl) cameraStatusEl.textContent = text;
@@ -942,19 +972,71 @@ if (cameraSensitivitySlider) {
   cameraSensitivitySlider.addEventListener("input", updateCameraSensitivityLabel);
 }
 
+// Mise à jour de l’UI selon le mode
+function updateCameraModeUI() {
+  if (!cameraScoreLabelEl) return;
+
+  if (cameraMode === "movement") {
+    cameraScoreLabelEl.textContent = "Niveau d’agitation visuelle :";
+    if (cameraInterpretationEl) {
+      cameraInterpretationEl.textContent =
+        "En mode mouvements, le score reflète la quantité de changements entre les images (mouvements, variations de lumière).";
+    }
+  } else {
+    cameraScoreLabelEl.textContent = "Indice de zones froides (symbolique) :";
+    if (cameraInterpretationEl) {
+      cameraInterpretationEl.textContent =
+        "En mode zones froides, les zones plus sombres sont colorées en bleu comme “froid symbolique”. Ce n’est pas une mesure de température réelle.";
+    }
+  }
+}
+
+if (cameraModeInputs && cameraModeInputs.length) {
+  cameraModeInputs.forEach((input) => {
+    input.addEventListener("change", () => {
+      cameraMode = input.value;
+      prevFrameData = null;
+      updateCameraModeUI();
+    });
+  });
+}
+
+updateCameraModeUI();
+
+// Interprétation du score selon le mode
 function interpretCameraScore(score) {
   if (!cameraInterpretationEl) return;
   let text = "";
-  if (score < 8) {
-    text = "Scène visuellement stable. Ambiance calme sur le plan des images.";
-  } else if (score < 20) {
-    text = "Légères variations : petits mouvements, changements de lumière ordinaires.";
-  } else if (score < 40) {
-    text = "Variations notables : mouvements, ombres, changements de contraste plus marqués.";
+
+  if (cameraMode === "movement") {
+    if (score < 8) {
+      text = "Scène visuellement stable. Ambiance calme sur le plan des images.";
+    } else if (score < 20) {
+      text =
+        "Légères variations : petits mouvements, changements de lumière ordinaires.";
+    } else if (score < 40) {
+      text =
+        "Variations notables : mouvements, ombres, changements de contraste plus marqués.";
+    } else {
+      text =
+        "Agitation visuelle forte : déplacements, variations lumineuses ou bruit vidéo important. Interprétez cela symboliquement, en priorité avec vos ressentis.";
+    }
   } else {
-    text =
-      "Agitation visuelle forte : déplacements, variations lumineuses ou bruit vidéo important. Interprétez cela symboliquement, en priorité avec vos ressentis.";
+    if (score < 20) {
+      text =
+        "Peu de zones sombres marquées : la scène est plutôt homogène sur le plan lumineux.";
+    } else if (score < 40) {
+      text =
+        "Quelques zones plus sombres. Elles peuvent être utilisées comme supports symboliques de “froid” dans votre lecture.";
+    } else if (score < 70) {
+      text =
+        "Présence notable de zones sombres. Utilisez ces zones en bleu comme ancrage visuel pour vos ressentis de “densité” ou de “froid symbolique”.";
+    } else {
+      text =
+        "Scène très sombre globalement. Le score élevé signifie surtout une grande proportion de pixels sombres (pas une température réelle).";
+    }
   }
+
   cameraInterpretationEl.textContent = text;
 }
 
@@ -968,10 +1050,11 @@ function logCameraSpike(score) {
 
   const entry = document.createElement("div");
   entry.className = "camera-log-entry";
-  entry.textContent = `[${timeLabel}] Pic d’agitation ≈ ${Math.round(score)}/100`;
+  entry.textContent = `[${timeLabel}] Pic (${cameraMode === "movement" ? "mouvement" : "froid symbolique"}) ≈ ${Math.round(score)}/100`;
   cameraLog.prepend(entry);
 }
 
+// Boucle principale d’analyse
 function processCameraFrame() {
   if (!cameraVideo || !cameraCanvas || !cameraCtx || !cameraStream) {
     cameraLoopId = requestAnimationFrame(processCameraFrame);
@@ -995,64 +1078,132 @@ function processCameraFrame() {
 
   cameraCtx.drawImage(cameraVideo, 0, 0, cw, ch);
   const frame = cameraCtx.getImageData(0, 0, cw, ch);
-
-  if (!prevFrameData) {
-    prevFrameData = frame.data.slice(0);
-    cameraLoopId = requestAnimationFrame(processCameraFrame);
-    return;
-  }
+  const data = frame.data;
+  const len = data.length;
 
   const sensitivity = cameraSensitivitySlider
     ? Number(cameraSensitivitySlider.value)
     : 60;
 
-  const threshold = (15 * (110 - sensitivity)) / 100;
-  let diffSum = 0;
-  let count = 0;
+  let score = 0;
 
-  const data = frame.data;
-  const prev = prevFrameData;
-  const len = data.length;
+  if (cameraMode === "movement") {
+    if (!prevFrameData) {
+      prevFrameData = frame.data.slice(0);
+      cameraLoopId = requestAnimationFrame(processCameraFrame);
+      return;
+    }
 
-  for (let i = 0; i < len; i += 4) {
-    const dr = data[i] - prev[i];
-    const dg = data[i + 1] - prev[i + 1];
-    const db = data[i + 2] - prev[i + 2];
+    const prev = prevFrameData;
+    const threshold = (15 * (110 - sensitivity)) / 100;
+    let diffSum = 0;
+    let count = 0;
 
-    const dist = Math.sqrt(dr * dr + dg * dg + db * db);
-    diffSum += dist;
-    count++;
+    for (let i = 0; i < len; i += 4) {
+      const dr = data[i] - prev[i];
+      const dg = data[i + 1] - prev[i + 1];
+      const db = data[i + 2] - prev[i + 2];
 
-    if (dist > threshold * 3) {
-      data[i] = 255;
-      data[i + 1] = 255;
-      data[i + 2] = 255;
-      data[i + 3] = 200;
-    } else if (dist > threshold) {
-      data[i] = 0;
-      data[i + 1] = 255;
-      data[i + 2] = 170;
-      data[i + 3] = 160;
-    } else {
-      data[i + 3] = 0;
+      const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+      diffSum += dist;
+      count++;
+
+      if (dist > threshold * 3) {
+        data[i] = 255;
+        data[i + 1] = 255;
+        data[i + 2] = 255;
+        data[i + 3] = 200;
+      } else if (dist > threshold) {
+        data[i] = 0;
+        data[i + 1] = 255;
+        data[i + 2] = 170;
+        data[i + 3] = 160;
+      } else {
+        data[i + 3] = 0;
+      }
+    }
+
+    const avgDiff = diffSum / count;
+    score = Math.max(0, Math.min(100, (avgDiff / 70) * 100));
+    prevFrameData = frame.data.slice(0);
+  } else {
+    let sumLum = 0;
+    let count = 0;
+    const lumArray = new Float32Array(len / 4);
+
+    for (let i = 0, j = 0; i < len; i += 4, j++) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+      lumArray[j] = lum;
+      sumLum += lum;
+      count++;
+    }
+
+    const avgLum = sumLum / count;
+    let coldCount = 0;
+
+    for (let i = 0, j = 0; i < len; i += 4, j++) {
+      const lum = lumArray[j];
+
+      if (lum < avgLum) {
+        const factor = (avgLum - lum) / (avgLum || 1);
+        data[i] = 20;
+        data[i + 1] = 60 + 150 * factor;
+        data[i + 2] = 200;
+        data[i + 3] = 200;
+        coldCount++;
+      } else {
+        const factor = (lum - avgLum) / (255 - avgLum || 1);
+        data[i] = 220;
+        data[i + 1] = 120 + 80 * factor;
+        data[i + 2] = 40;
+        data[i + 3] = 200;
+      }
+    }
+
+    const coldRatio = coldCount / count;
+    score = Math.round(coldRatio * 100);
+  }
+
+  if (faceDetector && cameraFaceInfoEl) {
+    const nowTs = performance.now();
+    if (nowTs - lastFaceCheck > 800) {
+      lastFaceCheck = nowTs;
+      const clone = new ImageData(
+        new Uint8ClampedArray(frame.data),
+        frame.width,
+        frame.height
+      );
+      createImageBitmap(clone)
+        .then((bitmap) => faceDetector.detect(bitmap))
+        .then((faces) => {
+          if (!faces || !faces.length) {
+            cameraFaceInfoEl.textContent = "Aucun visage détecté pour le moment.";
+          } else {
+            cameraFaceInfoEl.textContent =
+              "Visages ou formes similaires détectés : " + faces.length;
+          }
+        })
+        .catch(() => {
+          cameraFaceInfoEl.textContent =
+            "Erreur lors de la détection des visages (API expérimentale).";
+        });
     }
   }
 
-  const avgDiff = diffSum / count;
-  const normalizedScore = Math.max(0, Math.min(100, (avgDiff / 70) * 100));
-
   if (cameraScoreEl) {
-    cameraScoreEl.textContent = Math.round(normalizedScore);
+    cameraScoreEl.textContent = Math.round(score);
   }
 
-  interpretCameraScore(normalizedScore);
+  interpretCameraScore(score);
   cameraCtx.putImageData(frame, 0, 0);
 
-  if (normalizedScore > 35) {
-    logCameraSpike(normalizedScore);
+  if (score > 35) {
+    logCameraSpike(score);
   }
 
-  prevFrameData = frame.data.slice(0);
   cameraLoopId = requestAnimationFrame(processCameraFrame);
 }
 
@@ -1083,7 +1234,7 @@ async function startCamera() {
     if (cameraStopBtn) cameraStopBtn.disabled = false;
 
     setCameraStatus(
-      "Caméra active. Dirigez l’appareil vers la zone souhaitée et observez les variations amplifiées."
+      "Caméra active. Adaptez le mode (mouvements / zones froides symboliques) selon votre pratique."
     );
   } catch (e) {
     console.error(e);
