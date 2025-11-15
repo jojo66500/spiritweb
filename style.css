@@ -478,7 +478,6 @@ body {
   box-shadow:
     0 14px 22px rgba(0, 0, 0, 0.9),
     inset 0 0 0 1px rgba(255, 255, 255, 0.35);
-  pointer-events: none;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%) rotate(-8deg);
@@ -486,7 +485,7 @@ body {
     top 0.22s ease,
     left 0.22s ease,
     transform 0.22s ease;
-  z-index: 5; /* Planchette au-dessus des lettres */
+  z-index: 5; /* planchette au-dessus */
 }
 
 .ouija-planchette::before {
