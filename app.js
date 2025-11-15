@@ -175,7 +175,6 @@ const spiritSpeedValue = document.getElementById("spirit-speed-value");
 const spiritLog = document.getElementById("spirit-log");
 const spiritVoiceToggle = document.getElementById("spirit-voice-toggle");
 
-// fragments neutres : syllabes + petits mots non orientés
 const spiritSyllables = [
   "ra", "ta", "lo", "mi", "sa", "ko", "di", "ma", "ri", "na",
   "lu", "pe", "to", "cha", "ri", "so", "ve", "ne", "fa", "gu"
@@ -247,7 +246,6 @@ function startSweepInterval() {
   }, period);
 }
 
-// Synthèse vocale optionnelle
 function speakFragment(text) {
   if (!spiritVoiceToggle || !spiritVoiceToggle.checked) return;
   if (!("speechSynthesis" in window)) return;
@@ -930,10 +928,8 @@ let cameraCtx = null;
 let prevFrameData = null;
 let cameraLoopId = null;
 
-// mode courant : "movement" ou "coldspots"
 let cameraMode = "movement";
 
-// Détection de visages (API expérimentale)
 let faceDetector = null;
 let lastFaceCheck = 0;
 
@@ -972,7 +968,6 @@ if (cameraSensitivitySlider) {
   cameraSensitivitySlider.addEventListener("input", updateCameraSensitivityLabel);
 }
 
-// Mise à jour de l’UI selon le mode
 function updateCameraModeUI() {
   if (!cameraScoreLabelEl) return;
 
@@ -986,7 +981,7 @@ function updateCameraModeUI() {
     cameraScoreLabelEl.textContent = "Indice de zones froides (symbolique) :";
     if (cameraInterpretationEl) {
       cameraInterpretationEl.textContent =
-        "En mode zones froides, les zones plus sombres sont colorées en bleu comme “froid symbolique”. Ce n’est pas une mesure de température réelle.";
+        "En mode zones froides, les zones plus sombres sont colorées en bleu comme “froid symbolique”. Ce n’est pas une mesure de température réelle. Les zones qui bougent apparaissent en rouge comme “chaleur / mouvement symbolique”.";
     }
   }
 }
@@ -1003,7 +998,6 @@ if (cameraModeInputs && cameraModeInputs.length) {
 
 updateCameraModeUI();
 
-// Interprétation du score selon le mode
 function interpretCameraScore(score) {
   if (!cameraInterpretationEl) return;
   let text = "";
@@ -1030,7 +1024,7 @@ function interpretCameraScore(score) {
         "Quelques zones plus sombres. Elles peuvent être utilisées comme supports symboliques de “froid” dans votre lecture.";
     } else if (score < 70) {
       text =
-        "Présence notable de zones sombres. Utilisez ces zones en bleu comme ancrage visuel pour vos ressentis de “densité” ou de “froid symbolique”.";
+        "Présence notable de zones sombres. Utilisez ces zones en bleu comme ancrage visuel pour vos ressentis de “densité” ou de “froid symbolique”. Les zones rouges indiquent les parties en mouvement.";
     } else {
       text =
         "Scène très sombre globalement. Le score élevé signifie surtout une grande proportion de pixels sombres (pas une température réelle).";
@@ -1054,7 +1048,6 @@ function logCameraSpike(score) {
   cameraLog.prepend(entry);
 }
 
-// Boucle principale d’analyse
 function processCameraFrame() {
   if (!cameraVideo || !cameraCanvas || !cameraCtx || !cameraStream) {
     cameraLoopId = requestAnimationFrame(processCameraFrame);
@@ -1127,6 +1120,7 @@ function processCameraFrame() {
     score = Math.max(0, Math.min(100, (avgDiff / 70) * 100));
     prevFrameData = frame.data.slice(0);
   } else {
+    // MODE ZONES FROIDES SYMBOLIQUES + MOUVEMENT EN ROUGE
     let sumLum = 0;
     let count = 0;
     const lumArray = new Float32Array(len / 4);
@@ -1144,10 +1138,33 @@ function processCameraFrame() {
     const avgLum = sumLum / count;
     let coldCount = 0;
 
+    const havePrev = !!prevFrameData;
+    const prev = prevFrameData;
+    const motionBase = (12 * (110 - sensitivity)) / 100;
+
     for (let i = 0, j = 0; i < len; i += 4, j++) {
       const lum = lumArray[j];
 
-      if (lum < avgLum) {
+      let isMoving = false;
+      if (havePrev && prev) {
+        const dr = data[i] - prev[i];
+        const dg = data[i + 1] - prev[i + 1];
+        const db = data[i + 2] - prev[i + 2];
+        const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+
+        if (dist > motionBase * 2.2) {
+          isMoving = true;
+        }
+      }
+
+      if (isMoving) {
+        // Zone en mouvement -> rouge/orange = chaleur/mouvement symbolique
+        data[i] = 240;
+        data[i + 1] = 80;
+        data[i + 2] = 40;
+        data[i + 3] = 220;
+      } else if (lum < avgLum) {
+        // Zone sombre & plutôt statique -> froid symbolique (bleu)
         const factor = (avgLum - lum) / (avgLum || 1);
         data[i] = 20;
         data[i + 1] = 60 + 150 * factor;
@@ -1155,6 +1172,7 @@ function processCameraFrame() {
         data[i + 3] = 200;
         coldCount++;
       } else {
+        // Zone claire & plutôt statique -> chaud doux (orange)
         const factor = (lum - avgLum) / (255 - avgLum || 1);
         data[i] = 220;
         data[i + 1] = 120 + 80 * factor;
@@ -1165,6 +1183,8 @@ function processCameraFrame() {
 
     const coldRatio = coldCount / count;
     score = Math.round(coldRatio * 100);
+
+    prevFrameData = frame.data.slice(0);
   }
 
   if (faceDetector && cameraFaceInfoEl) {
@@ -1267,3 +1287,36 @@ if (cameraStartBtn && cameraStopBtn && cameraVideo && cameraCanvas) {
   cameraStartBtn.addEventListener("click", startCamera);
   cameraStopBtn.addEventListener("click", stopCamera);
 }
+
+// --- ANTI-VEILLE : WAKE LOCK (si supporté) ---
+
+let wakeLock = null;
+
+async function requestWakeLock() {
+  try {
+    if (!("wakeLock" in navigator)) {
+      return;
+    }
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => {
+      wakeLock = null;
+    });
+  } catch (err) {
+    // Certains navigateurs refusent ou ne supportent pas
+    console.log("Wake Lock non disponible ou refusé :", err);
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !wakeLock) {
+    requestWakeLock();
+  }
+});
+
+document.addEventListener("pointerdown", () => {
+  if (!wakeLock) {
+    requestWakeLock();
+  }
+});
+
+requestWakeLock();
