@@ -385,6 +385,9 @@ const ouijaHistoryEl = document.getElementById("ouija-history");
 let ouijaCurrentMessage = "";
 let ouijaAutoTimer = null;
 
+// nouveau : drag de la planchette
+let ouijaDragging = false;
+
 function setOuijaStatus(text) {
   if (ouijaStatus) {
     ouijaStatus.textContent = text;
@@ -462,26 +465,80 @@ function applyOuijaSymbol(symbol) {
   updateOuijaCurrent();
 }
 
-function handleOuijaCellClick(event) {
-  const cell = event.currentTarget;
-  const symbol = cell.getAttribute("data-symbol");
-  if (!symbol) return;
+// nouveau : trouver la cellule la plus proche des coordonnées pointer
+function snapPlanchetteToNearestCell(clientX, clientY) {
+  if (!ouijaBoard || !ouijaPlanchette) return;
+  const cells = Array.from(ouijaBoard.querySelectorAll(".ouija-cell"));
+  if (!cells.length) return;
 
-  movePlanchetteToCell(cell);
-  applyOuijaSymbol(symbol);
+  let nearest = null;
+  let bestDist = Infinity;
+
+  cells.forEach((cell) => {
+    const r = cell.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const dx = clientX - cx;
+    const dy = clientY - cy;
+    const d2 = dx * dx + dy * dy;
+    if (d2 < bestDist) {
+      bestDist = d2;
+      nearest = cell;
+    }
+  });
+
+  if (nearest) {
+    movePlanchetteToCell(nearest);
+    const symbol = nearest.getAttribute("data-symbol") || "";
+    if (symbol) {
+      applyOuijaSymbol(symbol);
+    }
+  }
+}
+
+function movePlanchetteWithPointer(e) {
+  if (!ouijaDragging || !ouijaBoard || !ouijaPlanchette) return;
+  const rect = ouijaBoard.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  ouijaPlanchette.style.left = `${x}px`;
+  ouijaPlanchette.style.top = `${y}px`;
+}
+
+function handleOuijaPointerDown(e) {
+  if (!ouijaBoard || !ouijaPlanchette) return;
+  ouijaDragging = true;
+  ouijaBoard.setPointerCapture(e.pointerId);
+  movePlanchetteWithPointer(e);
+  e.preventDefault();
+}
+
+function handleOuijaPointerMove(e) {
+  if (!ouijaDragging) return;
+  movePlanchetteWithPointer(e);
+}
+
+function handleOuijaPointerUp(e) {
+  if (!ouijaDragging) return;
+  ouijaDragging = false;
+  try {
+    ouijaBoard.releasePointerCapture(e.pointerId);
+  } catch (err) {}
+  snapPlanchetteToNearestCell(e.clientX, e.clientY);
 }
 
 function initOuijaBoard() {
   if (!ouijaBoard) return;
 
-  const cells = ouijaBoard.querySelectorAll(".ouija-cell");
-  cells.forEach((cell) => {
-    cell.addEventListener("click", handleOuijaCellClick);
-  });
+  // plus de clic direct sur les cellules : tout passe par le drag/tap
+  ouijaBoard.addEventListener("pointerdown", handleOuijaPointerDown);
+  ouijaBoard.addEventListener("pointermove", handleOuijaPointerMove);
+  ouijaBoard.addEventListener("pointerup", handleOuijaPointerUp);
+  ouijaBoard.addEventListener("pointerleave", handleOuijaPointerUp);
 
   updateOuijaCurrent();
   setOuijaStatus(
-    "Touchez une lettre ou un mot pour déplacer le curseur médiator, ou utilisez le tirage auto."
+    "Faites glisser le médiator sur la planche (ou touchez une zone) puis relâchez : il se positionne sur la lettre ou le mot le plus proche."
   );
 }
 
@@ -1121,6 +1178,13 @@ function processCameraFrame() {
     prevFrameData = frame.data.slice(0);
   } else {
     // MODE ZONES FROIDES SYMBOLIQUES + MOUVEMENT EN ROUGE
+    if (!prevFrameData) {
+      // première frame : on ne peut pas mesurer le mouvement, on initialise juste
+      prevFrameData = frame.data.slice(0);
+      cameraLoopId = requestAnimationFrame(processCameraFrame);
+      return;
+    }
+
     let sumLum = 0;
     let count = 0;
     const lumArray = new Float32Array(len / 4);
@@ -1138,31 +1202,30 @@ function processCameraFrame() {
     const avgLum = sumLum / count;
     let coldCount = 0;
 
-    const havePrev = !!prevFrameData;
     const prev = prevFrameData;
-    const motionBase = (12 * (110 - sensitivity)) / 100;
+    // seuil de mouvement assez élevé, pour que TOUT ne devienne pas rouge
+    const motionSensitivityFactor = (110 - sensitivity) / 110; // 0 à ~1
+    const motionThreshold = 45 + motionSensitivityFactor * 55; // entre ~45 et 100
 
     for (let i = 0, j = 0; i < len; i += 4, j++) {
       const lum = lumArray[j];
 
       let isMoving = false;
-      if (havePrev && prev) {
-        const dr = data[i] - prev[i];
-        const dg = data[i + 1] - prev[i + 1];
-        const db = data[i + 2] - prev[i + 2];
-        const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+      const dr = data[i] - prev[i];
+      const dg = data[i + 1] - prev[i + 1];
+      const db = data[i + 2] - prev[i + 2];
+      const dist = Math.sqrt(dr * dr + dg * dg + db * db);
 
-        if (dist > motionBase * 2.2) {
-          isMoving = true;
-        }
+      if (dist > motionThreshold) {
+        isMoving = true;
       }
 
       if (isMoving) {
-        // Zone en mouvement -> rouge/orange = chaleur/mouvement symbolique
+        // Zone en mouvement -> rouge/orange (chaleur / mouvement symbolique)
         data[i] = 240;
         data[i + 1] = 80;
         data[i + 2] = 40;
-        data[i + 3] = 220;
+        data[i + 3] = 230;
       } else if (lum < avgLum) {
         // Zone sombre & plutôt statique -> froid symbolique (bleu)
         const factor = (avgLum - lum) / (avgLum || 1);
@@ -1302,7 +1365,6 @@ async function requestWakeLock() {
       wakeLock = null;
     });
   } catch (err) {
-    // Certains navigateurs refusent ou ne supportent pas
     console.log("Wake Lock non disponible ou refusé :", err);
   }
 }
