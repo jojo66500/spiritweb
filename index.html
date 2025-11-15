@@ -9,8 +9,10 @@
 <body>
   <div class="app-container">
     <aside class="sidebar">
-      <h1 class="logo">SpiritWeb</h1>
-      <p class="tagline">Outil spirite personnel</p>
+      <div>
+        <h1 class="logo">SpiritWeb</h1>
+        <p class="tagline">Outil spirite personnel</p>
+      </div>
 
       <nav class="nav">
         <button class="nav-btn active" data-section="pve">PVE</button>
@@ -22,7 +24,7 @@
       </nav>
 
       <footer class="sidebar-footer">
-        <small>Créé pour Joffrey • v0.7</small>
+        <small>Créé pour Joffrey • v0.8</small>
       </footer>
     </aside>
 
@@ -269,8 +271,9 @@
       <section id="camera" class="section">
         <h2>Détecteur visuel (caméra)</h2>
         <p class="section-description">
-          Amplification des variations d’image (mouvements, changements de lumière, bruit vidéo).
-          Aucun lien scientifique avec des esprits : c’est un amplificateur visuel symbolique.
+          Amplification de l’image : mouvements, variations de lumière et, en option, mise en couleur symbolique
+          des zones plus sombres comme “zones froides”. Aucun lien scientifique avec des esprits : c’est un
+          support visuel pour vos ressentis.
         </p>
 
         <div class="card">
@@ -282,6 +285,17 @@
             </span>
           </div>
 
+          <div class="controls-row">
+            <label class="mode-switch">
+              <input type="radio" name="camera-mode" value="movement" checked />
+              <span>Mode mouvements</span>
+            </label>
+            <label class="mode-switch">
+              <input type="radio" name="camera-mode" value="coldspots" />
+              <span>Mode zones froides (symbolique)</span>
+            </label>
+          </div>
+
           <div class="camera-layout">
             <div class="camera-preview-wrapper">
               <video id="camera-video" autoplay muted playsinline></video>
@@ -290,11 +304,12 @@
 
             <div class="camera-panel">
               <div class="camera-row">
-                <span>Niveau d’agitation visuelle :</span>
+                <span id="camera-score-label">Niveau d’agitation visuelle :</span>
                 <span class="camera-value">
                   <span id="camera-score">0</span> / 100
                 </span>
               </div>
+
               <div class="camera-row">
                 <label for="camera-sensitivity">
                   Sensibilité : <span id="camera-sensitivity-value">60</span>%
@@ -307,6 +322,14 @@
                   value="60"
                 />
               </div>
+
+              <div class="camera-row">
+                <span>Analyse des visages (API navigateur) :</span>
+                <p id="camera-face-info" class="camera-interpretation">
+                  Vérification du support de la détection de visages…
+                </p>
+              </div>
+
               <div class="camera-row">
                 <span>Interprétation symbolique :</span>
                 <p id="camera-interpretation" class="camera-interpretation">
@@ -318,10 +341,10 @@
         </div>
 
         <div class="card">
-          <h3>Variations marquées récentes</h3>
+          <h3>Variations / anomalies récentes</h3>
           <div id="camera-log" class="camera-log">
             <p class="empty-state">
-              Les pics d’agitation visuelle apparaîtront ici (mouvements, changements lumineux, etc.).
+              Les pics d’agitation ou de “froid symbolique” apparaîtront ici (selon le mode choisi).
             </p>
           </div>
         </div>
