@@ -13,6 +13,8 @@ body {
   min-height: 100vh;
 }
 
+/* LAYOUT GLOBAL */
+
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -108,6 +110,8 @@ body {
   margin-bottom: 14px;
 }
 
+/* CARD */
+
 .card {
   background: rgba(7, 9, 20, 0.9);
   border-radius: 16px;
@@ -186,7 +190,7 @@ body {
   margin-top: 4px;
 }
 
-/* Toggle */
+/* Toggle (Spirit Box) */
 
 .toggle {
   display: inline-flex;
@@ -278,7 +282,7 @@ body {
   color: #7d82a3;
 }
 
-/* SLIDERS (SPIRIT BOX) */
+/* SLIDERS (SPIRIT BOX & CAMERA) */
 
 .slider-group {
   display: flex;
@@ -836,10 +840,61 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Mode switch pour caméra */
+
+.mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #d2d5f2;
+}
+
+.mode-switch input {
+  accent-color: #ec4899;
+}
+
 /* RESPONSIVE MOBILE */
 
 @media (max-width: 900px) {
+  .app-container {
+    flex-direction: column;
+  }
+
   .sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+    white-space: nowrap;
+  }
+
+  .tagline {
+    display: none;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  .nav-btn {
+    white-space: nowrap;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+
+  .sidebar-footer {
     display: none;
   }
 
@@ -855,17 +910,17 @@ body {
     gap: 8px;
   }
 
-  .ouija-board {
-    transform: scale(0.9);
-    transform-origin: top center;
+  .sensor-gauge {
+    margin: 0 auto;
   }
 
   .camera-layout {
     flex-direction: column;
   }
 
-  .sensor-gauge {
-    margin: 0 auto;
+  .ouija-board {
+    transform: scale(0.9);
+    transform-origin: top center;
   }
 }
 
