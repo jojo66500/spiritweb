@@ -156,7 +156,7 @@ if (startBtn && stopBtn) {
   stopBtn.addEventListener("click", stopRecording);
 }
 
-// --- MODULE SPIRIT BOX ---
+// --- MODULE SPIRIT BOX (NEUTRE + VOIX OPTIONNELLE) ---
 
 let audioCtx = null;
 let noiseSource = null;
@@ -173,30 +173,33 @@ const spiritVolumeValue = document.getElementById("spirit-volume-value");
 const spiritSpeedSlider = document.getElementById("spirit-speed");
 const spiritSpeedValue = document.getElementById("spirit-speed-value");
 const spiritLog = document.getElementById("spirit-log");
+const spiritVoiceToggle = document.getElementById("spirit-voice-toggle");
 
-const fragmentPool = [
-  "oui",
-  "non",
-  "ici",
-  "toi",
-  "moi",
-  "aide",
-  "partir",
-  "reste",
-  "là",
-  "froid",
-  "ombre",
-  "écoute",
-  "douleur",
-  "calme",
-  "amour",
-  "peur",
-  "je suis",
-  "près",
-  "loin",
-  "au-dessus",
-  "en dessous"
+// fragments neutres : syllabes + petits mots non orientés
+const spiritSyllables = [
+  "ra", "ta", "lo", "mi", "sa", "ko", "di", "ma", "ri", "na",
+  "lu", "pe", "to", "cha", "ri", "so", "ve", "ne", "fa", "gu"
 ];
+
+const spiritNeutralWords = [
+  "ici", "là", "plus", "rien", "encore", "déjà", "vite", "lent",
+  "un", "une", "des", "oui", "non"
+];
+
+function getRandomSpiritFragment() {
+  const poolChoice = Math.random();
+  if (poolChoice < 0.6) {
+    // une ou deux syllabes
+    const first = spiritSyllables[Math.floor(Math.random() * spiritSyllables.length)];
+    if (Math.random() < 0.4) {
+      const second = spiritSyllables[Math.floor(Math.random() * spiritSyllables.length)];
+      return first + second;
+    }
+    return first;
+  } else {
+    return spiritNeutralWords[Math.floor(Math.random() * spiritNeutralWords.length)];
+  }
+}
 
 function setSpiritStatus(text) {
   if (spiritStatus) spiritStatus.textContent = text;
@@ -245,13 +248,27 @@ function startSweepInterval() {
   }, period);
 }
 
+// Synthèse vocale optionnelle
+function speakFragment(text) {
+  if (!spiritVoiceToggle || !spiritVoiceToggle.checked) return;
+  if (!("speechSynthesis" in window)) return;
+  if (window.speechSynthesis.speaking && text.length <= 3) {
+    return;
+  }
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "fr-FR";
+  utterance.rate = 1.05;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
+}
+
 function appendSpiritFragment() {
   if (!spiritLog) return;
 
   const empty = spiritLog.querySelector(".empty-state");
   if (empty) empty.remove();
 
-  const fragmentText = fragmentPool[Math.floor(Math.random() * fragmentPool.length)];
+  const fragmentText = getRandomSpiritFragment();
   const now = new Date();
   const timeLabel = now.toLocaleTimeString();
 
@@ -269,6 +286,8 @@ function appendSpiritFragment() {
   p.appendChild(textSpan);
 
   spiritLog.prepend(p);
+
+  speakFragment(fragmentText);
 }
 
 function startFragmentStream() {
@@ -307,7 +326,7 @@ async function startSpiritBox() {
     if (spiritStartBtn) spiritStartBtn.disabled = true;
     if (spiritStopBtn) spiritStopBtn.disabled = false;
     setSpiritStatus(
-      "Spirit Box en cours… utilisez-la comme support d’écoute et d’intuition, pas comme mesure scientifique."
+      "Spirit Box en cours… générateur aléatoire neutre. Utilisez-le comme support projectif."
     );
   } catch (e) {
     console.error(e);
@@ -465,7 +484,7 @@ function initOuijaBoard() {
 
   updateOuijaCurrent();
   setOuijaStatus(
-    "Cliquez sur une case pour déplacer la planchette et construire un message, ou utilisez le tirage auto."
+    "Touchez une lettre ou un mot pour déplacer le curseur médiator, ou utilisez le tirage auto."
   );
 }
 
@@ -491,7 +510,7 @@ function startOuijaAuto() {
   }
 
   let steps = 0;
-  const maxSteps = 12 + Math.floor(Math.random() * 8);
+  const maxSteps = 10 + Math.floor(Math.random() * 8);
 
   ouijaAutoBtn.textContent = "⏳ Tirage en cours…";
   ouijaAutoBtn.disabled = true;
@@ -513,7 +532,7 @@ function startOuijaAuto() {
       ouijaAutoBtn.textContent = "✨ Tirage auto (symbolique)";
       ouijaAutoBtn.disabled = false;
       setOuijaStatus(
-        "Tirage auto terminé. Utilisez ce message comme base de lecture, en croisant avec vos ressentis et votre déontologie."
+        "Tirage auto terminé. Utilisez ce message comme base de lecture, en le croisant avec vos ressentis."
       );
     }
   }, 900);
@@ -771,7 +790,7 @@ function setSensorsStatus(text) {
 function updateGauge(energy) {
   if (!sensorGaugeNeedle) return;
   const clamped = Math.max(0, Math.min(100, energy));
-  const angle = -90 + (clamped / 100) * 180; // -90° à +90°
+  const angle = -90 + (clamped / 100) * 180;
   sensorGaugeNeedle.style.transform = `rotate(${angle}deg)`;
   if (sensorEnergyValue) {
     sensorEnergyValue.textContent = Math.round(clamped);
