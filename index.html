@@ -9,20 +9,16 @@
 <body>
   <div class="app-container">
     <aside class="sidebar">
-      <div class="sidebar-header">
-        <div>
-          <h1 class="logo">SpiritWeb</h1>
-          <p class="tagline">Outil spirite personnel</p>
-        </div>
-      </div>
+      <h1 class="logo">SpiritWeb</h1>
+      <p class="tagline">Outil spirite personnel</p>
 
       <nav class="nav">
         <button class="nav-btn active" data-section="pve">PVE</button>
         <button class="nav-btn" data-section="spirit-box">Spirit Box</button>
         <button class="nav-btn" data-section="ouija">Planche Oui-Ja</button>
-        <button class="nav-btn" data-section="sensors">Capteurs</button>
+        <button class="nav-btn" data-section="sensors">Capteurs & Ambiance</button>
         <button class="nav-btn" data-section="camera">Détecteur visuel</button>
-        <button class="nav-btn" data-section="journal">Journal</button>
+        <button class="nav-btn" data-section="journal">Journal des séances</button>
       </nav>
 
       <footer class="sidebar-footer">
@@ -61,14 +57,23 @@
       <section id="spirit-box" class="section">
         <h2>Spirit Box numérique</h2>
         <p class="section-description">
-          Générateur de « balayage » sonore symbolique : bruit blanc saccadé + fragments textuels aléatoires.
-          Cet outil est immersif, mais ne constitue pas une preuve scientifique de phénomènes paranormaux.
+          Générateur de balayage sonore neutre (bruit blanc saccadé + fragments aléatoires).
+          L’algorithme ne détecte rien de paranormal et ne décide pas des messages : il génère
+          des sons de manière aléatoire, à utiliser comme support symbolique.
         </p>
 
         <div class="card">
           <div class="controls-row">
             <button id="spirit-start" class="primary-btn">▶️ Lancer la Spirit Box</button>
             <button id="spirit-stop" class="secondary-btn" disabled>■ Stop</button>
+          </div>
+
+          <div class="controls-row">
+            <label class="toggle">
+              <input type="checkbox" id="spirit-voice-toggle" checked />
+              <span class="toggle-slider"></span>
+              <span class="toggle-label">Lire les fragments à haute voix</span>
+            </label>
           </div>
 
           <div class="slider-group">
@@ -98,15 +103,16 @@
           </div>
 
           <p class="status-text" id="spirit-status">
-            Prêt. Utilisez ce module comme support rituel et d’intuition, pas comme instrument de mesure.
+            Prêt. Cette Spirit Box est purement aléatoire (simulation), à utiliser comme fond sonore
+            et support d’écoute projective.
           </p>
         </div>
 
         <div class="card">
-          <h3>Fragments « perçus » (générés aléatoirement)</h3>
+          <h3>Fragments neutres générés</h3>
           <div id="spirit-log" class="spirit-log">
             <p class="empty-state">
-              Les fragments textuels apparaîtront ici pendant le fonctionnement de la Spirit Box.
+              Les fragments aléatoires apparaîtront ici pendant le fonctionnement de la Spirit Box.
             </p>
           </div>
         </div>
@@ -116,56 +122,61 @@
       <section id="ouija" class="section">
         <h2>Planche Oui-Ja digitale</h2>
         <p class="section-description">
-          Utilisez cette planche Oui-Ja comme support symbolique : vous pouvez cliquer sur les lettres,
-          ou laisser le mode auto proposer un mouvement « inspiré ». Cette interface n’est pas un instrument
-          scientifique, mais un outil rituel et projectif.
+          Planche inspirée des planches traditionnelles : alphabet en arc de cercle, curseur en
+          forme de médiator en bois. Utilisez-la comme support symbolique et projectif, pas comme
+          preuve scientifique.
         </p>
 
         <div class="card">
           <div class="ouija-board" id="ouija-board">
             <div id="ouija-planchette" class="ouija-planchette"></div>
 
-            <!-- Lignes de lettres -->
-            <div class="ouija-cell" data-symbol="A">A</div>
-            <div class="ouija-cell" data-symbol="B">B</div>
-            <div class="ouija-cell" data-symbol="C">C</div>
-            <div class="ouija-cell" data-symbol="D">D</div>
-            <div class="ouija-cell" data-symbol="E">E</div>
-            <div class="ouija-cell" data-symbol="F">F</div>
-            <div class="ouija-cell" data-symbol="G">G</div>
+            <!-- Arc supérieur : A à M -->
+            <div class="ouija-row ouija-row-top">
+              <div class="ouija-cell" data-symbol="A">A</div>
+              <div class="ouija-cell" data-symbol="B">B</div>
+              <div class="ouija-cell" data-symbol="C">C</div>
+              <div class="ouija-cell" data-symbol="D">D</div>
+              <div class="ouija-cell" data-symbol="E">E</div>
+              <div class="ouija-cell" data-symbol="F">F</div>
+              <div class="ouija-cell" data-symbol="G">G</div>
+              <div class="ouija-cell" data-symbol="H">H</div>
+              <div class="ouija-cell" data-symbol="I">I</div>
+              <div class="ouija-cell" data-symbol="J">J</div>
+              <div class="ouija-cell" data-symbol="K">K</div>
+              <div class="ouija-cell" data-symbol="L">L</div>
+              <div class="ouija-cell" data-symbol="M">M</div>
+            </div>
 
-            <div class="ouija-cell" data-symbol="H">H</div>
-            <div class="ouija-cell" data-symbol="I">I</div>
-            <div class="ouija-cell" data-symbol="J">J</div>
-            <div class="ouija-cell" data-symbol="K">K</div>
-            <div class="ouija-cell" data-symbol="L">L</div>
-            <div class="ouija-cell" data-symbol="M">M</div>
-            <div class="ouija-cell" data-symbol="N">N</div>
+            <!-- Arc intermédiaire : N à Z -->
+            <div class="ouija-row ouija-row-middle">
+              <div class="ouija-cell" data-symbol="N">N</div>
+              <div class="ouija-cell" data-symbol="O">O</div>
+              <div class="ouija-cell" data-symbol="P">P</div>
+              <div class="ouija-cell" data-symbol="Q">Q</div>
+              <div class="ouija-cell" data-symbol="R">R</div>
+              <div class="ouija-cell" data-symbol="S">S</div>
+              <div class="ouija-cell" data-symbol="T">T</div>
+              <div class="ouija-cell" data-symbol="U">U</div>
+              <div class="ouija-cell" data-symbol="V">V</div>
+              <div class="ouija-cell" data-symbol="W">W</div>
+              <div class="ouija-cell" data-symbol="X">X</div>
+              <div class="ouija-cell" data-symbol="Y">Y</div>
+              <div class="ouija-cell" data-symbol="Z">Z</div>
+            </div>
 
-            <div class="ouija-cell" data-symbol="O">O</div>
-            <div class="ouija-cell" data-symbol="P">P</div>
-            <div class="ouija-cell" data-symbol="Q">Q</div>
-            <div class="ouija-cell" data-symbol="R">R</div>
-            <div class="ouija-cell" data-symbol="S">S</div>
-            <div class="ouija-cell" data-symbol="T">T</div>
-            <div class="ouija-cell" data-symbol="U">U</div>
-
-            <div class="ouija-cell" data-symbol="V">V</div>
-            <div class="ouija-cell" data-symbol="W">W</div>
-            <div class="ouija-cell" data-symbol="X">X</div>
-            <div class="ouija-cell" data-symbol="Y">Y</div>
-            <div class="ouija-cell" data-symbol="Z">Z</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="OUI">OUI</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="NON">NON</div>
-
-            <!-- Ligne spéciale -->
-            <div class="ouija-cell ouija-cell-special" data-symbol="ESPACE">␣ ESPACE</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="EFFACER">← EFFACER</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="FIN">FIN</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="?">?</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="MERCI">MERCI</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="DEBUT">DÉBUT</div>
-            <div class="ouija-cell ouija-cell-special" data-symbol="STOP">STOP</div>
+            <!-- Ligne du bas : mots spéciaux -->
+            <div class="ouija-row ouija-row-bottom">
+              <div class="ouija-cell ouija-cell-special" data-symbol="OUI">OUI</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="NON">NON</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="DEBUT">DÉBUT</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="ESPACE">␣ ESPACE</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="EFFACER">← EFFACER</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="FIN">FIN</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="MERCI">MERCI</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="STOP">STOP</div>
+              <div class="ouija-cell ouija-cell-special" data-symbol="?">?</div>
+            </div>
           </div>
 
           <div class="controls-row">
@@ -174,8 +185,8 @@
           </div>
 
           <p class="status-text" id="ouija-status">
-            Cliquez sur une case ou utilisez le tirage auto. Laissez venir vos ressentis, vos intuitions,
-            et utilisez ce qui apparaît comme support de lecture médiumnique.
+            Touchez une lettre ou un mot pour déplacer le curseur médiator, ou utilisez le tirage
+            automatique. La planche ne “décide” de rien : c’est un support pour vos ressentis.
           </p>
         </div>
 
@@ -196,9 +207,8 @@
       <section id="sensors" class="section">
         <h2>Capteurs & Ambiance</h2>
         <p class="section-description">
-          Lecture symbolique de l’orientation et des micro-mouvements de l’appareil pour vous aider
-          à ressentir « l’ambiance du lieu ». Ce module utilise les capteurs standards (quand disponibles)
-          et ne mesure rien de surnaturel.
+          Lecture symbolique de l’orientation et des micro-mouvements de l’appareil. Ne mesure rien
+          de surnaturel, uniquement les capteurs standards.
         </p>
 
         <div class="card">
@@ -259,8 +269,8 @@
       <section id="camera" class="section">
         <h2>Détecteur visuel (caméra)</h2>
         <p class="section-description">
-          Ce module utilise la caméra pour amplifier les variations visuelles (mouvement, bruit, changements de lumière).
-          Il ne détecte rien de surnaturel : considérez-le comme un amplificateur symbolique de ce que l’œil ne remarque pas toujours.
+          Amplification des variations d’image (mouvements, changements de lumière, bruit vidéo).
+          Aucun lien scientifique avec des esprits : c’est un amplificateur visuel symbolique.
         </p>
 
         <div class="card">
